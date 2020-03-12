@@ -1,3 +1,8 @@
+import os
+env = os.environ.get('sp-env', 'staging')
+is_local = env.lower() == 'local'
+is_local = True
+
 API_URL = "https://api-v2.yiyechat.com"
 CHAT_SOCKET_DOMAIN = "chat-v6.yiyechat.com"
 REDIS_URL = 'redis://same-page-cache.1brzf1.0001.apse1.cache.amazonaws.com:6379'

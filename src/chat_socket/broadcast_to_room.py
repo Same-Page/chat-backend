@@ -4,13 +4,13 @@ import logging
 import boto3
 import redis
 
-from cfg import REDIS_URL
-
+from cfg import is_local, REDIS_URL
+# from .shim import send_message_to_socket
 
 redis_client = redis.Redis.from_url(REDIS_URL)
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, context, send_message_to_socket=None):
     data = json.loads(event['Records'][0]['Sns']['Message'])
     room = data['room']
     message = data['message']
@@ -28,12 +28,17 @@ def lambda_handler(event, context):
         connections_to_be_removed = []
         for connection_id in user['connections']:
             try:
-                resp = gatewayapi.post_to_connection(
-                    ConnectionId=connection_id, Data=payload)
-            except:
+                if is_local:
+                    send_message_to_socket(connection_id, payload)
+                else:
+
+                    resp = gatewayapi.post_to_connection(
+                        ConnectionId=connection_id, Data=payload)
+            except Exception as e:
+
                 connections_to_be_removed.append(connection_id)
                 lost_connection = True
-                logging.error(
+                logging.exception(
                     f'Room [{room["id"]}] failed to send message to connection {connection_id}')
         user['connections'] = [connection_id for connection_id in user['connections']
                                if connection_id not in connections_to_be_removed]

@@ -5,8 +5,8 @@ import requests
 import redis
 from boto3 import client as boto3_client
 
-from cfg import REDIS_URL, API_URL, CHAT_HISTORY_REDIS_URL, MAX_ROOM_HISTORY
-
+from cfg import is_local, REDIS_URL, API_URL, CHAT_HISTORY_REDIS_URL, MAX_ROOM_HISTORY
+from chat_socket.shim import queue_message
 
 redis_client = redis.Redis.from_url(REDIS_URL)
 chat_history_client = redis.Redis.from_url(CHAT_HISTORY_REDIS_URL)
@@ -118,11 +118,14 @@ def send_msg_to_room(endpoint_url, payload, room):
         'message': payload,
         'room': room
     }
-    sns_client.publish(
-        TargetArn='arn:aws:sns:ap-southeast-1:398625168665:sp-message',
-        Message=json.dumps({'default': json.dumps(data)}),
-        MessageStructure='json'
-    )
+    if is_local:
+        queue_message(json.dumps(data))
+    else:
+        sns_client.publish(
+            TargetArn='arn:aws:sns:ap-southeast-1:398625168665:sp-message',
+            Message=json.dumps({'default': json.dumps(data)}),
+            MessageStructure='json'
+        )
 
 
 def broadcast_new_join(event, room, user):

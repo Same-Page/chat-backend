@@ -7,10 +7,8 @@ import ssl
 import websockets
 
 from chat_socket import set_rooms, message, join_single_room, leave_single_room, sync
-
+from chat_socket.local_sockets import local_sockets
 from cfg import CHAT_SOCKET_DOMAIN
-
-sockets = {}
 
 
 def handle_event(mock_event, action):
@@ -29,7 +27,8 @@ def handle_event(mock_event, action):
 
 async def hello(websocket, path):
     connection_id = str(uuid.uuid4())
-    sockets[connection_id] = websocket
+    print(f'{connection_id} connected')
+    local_sockets[connection_id] = websocket
     while True:
         try:
             data_str = await websocket.recv()
@@ -48,13 +47,9 @@ async def hello(websocket, path):
 
             await websocket.send(res)
 
-            for sid in sockets:
-                socket = sockets[sid]
-                await socket.send(res)
-
         except websockets.ConnectionClosed:
-            print(f"connection closed by client")
-            del sockets[connection_id]
+            print(f"{connection_id} closed by client")
+            del local_sockets[connection_id]
             break
 
 
