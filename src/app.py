@@ -1,0 +1,73 @@
+import json
+import uuid
+
+import asyncio
+import pathlib
+import ssl
+import websockets
+
+from chat_socket import set_rooms, message, join_single_room, leave_single_room, sync
+
+from cfg import CHAT_SOCKET_DOMAIN
+
+sockets = {}
+
+
+def handle_event(mock_event, action):
+    res = f'no handler for action {action}'
+    if action == 'join':
+        res = set_rooms.lambda_handler(mock_event, None)['body']
+    if action == 'message':
+        res = message.lambda_handler(mock_event, None)['body']
+    if action == 'join_single':
+        res = join_single_room.lambda_handler(mock_event, None)['body']
+    if action == 'leave_single':
+        res = leave_single_room.lambda_handler(mock_event, None)['body']
+
+    return res
+
+
+async def hello(websocket, path):
+    connection_id = str(uuid.uuid4())
+    sockets[connection_id] = websocket
+    while True:
+        try:
+            data_str = await websocket.recv()
+            data = json.loads(data_str)
+            action = data['action']
+            # mock how event is passed to aws lambda functions
+            mock_event = {
+                'requestContext': {
+                    'connectionId': connection_id,
+                    'domainName': CHAT_SOCKET_DOMAIN,
+                    'stage': 'prod'
+                },
+                'body': data_str
+            }
+            res = handle_event(mock_event, action)
+
+            await websocket.send(res)
+
+            for sid in sockets:
+                socket = sockets[sid]
+                await socket.send(res)
+
+        except websockets.ConnectionClosed:
+            print(f"connection closed by client")
+            del sockets[connection_id]
+            break
+
+
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+localhost_pem = pathlib.Path(__file__).with_name(
+    "local_cert.pem")
+localhost_key_pem = pathlib.Path(__file__).with_name("key.pem")
+ssl_context.load_cert_chain(localhost_pem, keyfile=localhost_key_pem)
+
+start_server = websockets.serve(
+    hello, "localhost", 8765,
+    ssl=ssl_context
+)
+
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
