@@ -17,8 +17,7 @@ def queue_message(message):
 
 
 def send_message_to_socket(connection_id, data):
-    if connection_id in local_sockets:
-        print('send_message_to_socket')
-        socket = local_sockets[connection_id]
-        asyncio.create_task(socket.send(data.decode()))
-        # asyncio.run(socket.send(data))
+    print('send_message_to_socket')
+    socket = local_sockets[connection_id]
+    asyncio.create_task(socket.send(data.decode()))
+    # asyncio.run(socket.send(data))

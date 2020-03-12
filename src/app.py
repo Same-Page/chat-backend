@@ -6,7 +6,7 @@ import pathlib
 import ssl
 import websockets
 
-from chat_socket import set_rooms, message, join_single_room, leave_single_room, sync
+from chat_socket import set_rooms, message, join_single_room, leave_single_room, sync, close
 from chat_socket.local_sockets import local_sockets
 from cfg import CHAT_SOCKET_DOMAIN
 
@@ -50,6 +50,7 @@ async def hello(websocket, path):
         except websockets.ConnectionClosed:
             print(f"{connection_id} closed by client")
             del local_sockets[connection_id]
+            close.lambda_handler(mock_event, None)
             break
 
 
