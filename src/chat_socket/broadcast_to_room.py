@@ -2,12 +2,8 @@ import json
 import logging
 
 import boto3
-import redis
 
-from cfg import is_local, REDIS_URL
-# from .shim import send_message_to_socket
-
-redis_client = redis.Redis.from_url(REDIS_URL)
+from cfg import is_local, redis_client
 
 
 def lambda_handler(event, context, send_message_to_socket=None):
@@ -31,7 +27,6 @@ def lambda_handler(event, context, send_message_to_socket=None):
                 if is_local:
                     send_message_to_socket(connection_id, payload)
                 else:
-
                     resp = gatewayapi.post_to_connection(
                         ConnectionId=connection_id, Data=payload)
             except Exception as e:

@@ -3,11 +3,8 @@ import logging
 
 import redis
 
-from cfg import REDIS_URL
 from common import get_room, get_room_messages, get_connection
-
-
-redis_client = redis.Redis.from_url(REDIS_URL)
+from cfg import redis_client
 
 
 def lambda_handler(event, context):

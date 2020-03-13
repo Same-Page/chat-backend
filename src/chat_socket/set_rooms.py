@@ -3,14 +3,9 @@ import logging
 
 from boto3 import client as boto3_client
 import requests
-import redis
 
-
-from cfg import REDIS_URL, API_URL
 from common import get_room_messages, get_user, get_room, get_user_from_cache, get_connection, delete_connection_from_rooms, send_msg_to_room, join_room, save_user, save_connection, delete_connection_from_rooms
-
-redis_client = redis.Redis.from_url(REDIS_URL)
-
+from cfg import redis_client
 
 """
 

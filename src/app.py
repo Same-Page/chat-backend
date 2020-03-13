@@ -6,7 +6,7 @@ import pathlib
 import ssl
 import websockets
 
-from chat_socket import set_rooms, message, join_single_room, leave_single_room, sync, close
+from chat_socket import set_rooms, message, join_single_room, leave_single_room, close
 from chat_socket.local_sockets import local_sockets
 from cfg import CHAT_SOCKET_DOMAIN
 

@@ -5,14 +5,8 @@ import time
 
 import boto3
 from boto3 import client as boto3_client
-import redis
 
-from cfg import REDIS_URL, API_URL
 from common import get_user, get_room, get_room_messages, save_room_messages, send_msg_to_room
-
-# dynamodb_client = boto3_client('dynamodb')
-
-redis_client = redis.Redis.from_url(REDIS_URL)
 
 
 def save_msg(data, room_id):

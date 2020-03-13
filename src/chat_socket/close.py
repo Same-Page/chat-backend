@@ -1,15 +1,10 @@
 import json
 import logging
 
-import redis
 import boto3
 
-
-from cfg import REDIS_URL
+from cfg import redis_client
 from common import get_room, get_user_from_cache, broadcast_user_left, delete_connection_from_rooms
-
-
-redis_client = redis.Redis.from_url(REDIS_URL)
 
 
 def _delete_connection_from_user(connection_id, user_id):

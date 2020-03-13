@@ -1,4 +1,9 @@
 import os
+from unittest.mock import MagicMock
+
+import redis
+
+
 env = os.environ.get('sp-env', 'staging')
 print(f'NOTE: running env {env}')
 
@@ -12,8 +17,29 @@ CHAT_HISTORY_REDIS_URL = 'redis://sp-chat-history.1brzf1.0001.apse1.cache.amazon
 
 MAX_ROOM_HISTORY = 30
 
+redis_client = redis.Redis.from_url(REDIS_URL)
+chat_history_client = redis.Redis.from_url(CHAT_HISTORY_REDIS_URL)
+
 if is_local:
     # prod proxy
     # CHAT_HISTORY_REDIS_URL = 'redis://13.229.251.12:7617'
     # REDIS_URL = 'redis://13.229.251.12:7618'
-    REDIS_URL = CHAT_HISTORY_REDIS_URL = 'redis://0.0.0.0:6379'
+
+    # REDIS_URL = CHAT_HISTORY_REDIS_URL = 'redis://0.0.0.0:6379'
+
+    local_cache = {}
+
+    def get_cache(key):
+        return local_cache.get(key)
+
+    def put_cache(key, val):
+        local_cache[key] = val
+
+    def del_cache(key):
+        del local_cache[key]
+
+    redis_client = MagicMock()
+    redis_client.get = get_cache
+    redis_client.set = put_cache
+    redis_client.delete = del_cache
+    chat_history_client = redis_client

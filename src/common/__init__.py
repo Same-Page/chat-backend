@@ -2,15 +2,30 @@ import json
 import logging
 
 import requests
-import redis
+# import redis
 from boto3 import client as boto3_client
 
-from cfg import is_local, REDIS_URL, API_URL, CHAT_HISTORY_REDIS_URL, MAX_ROOM_HISTORY
+from cfg import is_local, redis_client, chat_history_client, API_URL, CHAT_HISTORY_REDIS_URL, MAX_ROOM_HISTORY
 from chat_socket.shim import queue_message
 
-redis_client = redis.Redis.from_url(REDIS_URL)
-chat_history_client = redis.Redis.from_url(CHAT_HISTORY_REDIS_URL)
+# redis_client = redis.Redis.from_url(REDIS_URL)
+# chat_history_client = redis.Redis.from_url(CHAT_HISTORY_REDIS_URL)
 sns_client = boto3_client('sns')
+
+
+# if is_local:
+#     local_cache = {}
+
+#     def get_cache(key):
+#         local_cache.get(key)
+
+#     def put_cache(key, val):
+#         local_cache[key] = val
+
+#     redis_client = MagicMock()
+#     redis_client.get = get_cache
+#     redis_client.set = put_cache
+#     chat_history_client = redis_client
 
 
 def get_connection(connection_id):
