@@ -20,4 +20,3 @@ def send_message_to_socket(connection_id, data):
     print('send_message_to_socket')
     socket = local_sockets[connection_id]
     asyncio.create_task(socket.send(data.decode()))
-    # asyncio.run(socket.send(data))

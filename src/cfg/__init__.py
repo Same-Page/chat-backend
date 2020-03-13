@@ -4,11 +4,11 @@ from unittest.mock import MagicMock
 import redis
 
 
-env = os.environ.get('sp-env', 'staging')
+env = os.environ.get('sp_env', 'staging')
 print(f'NOTE: running env {env}')
 
 is_local = env.lower() == 'local'
-is_local = True
+# is_local = True
 
 API_URL = "https://api-v2.yiyechat.com"
 CHAT_SOCKET_DOMAIN = "chat-v6.yiyechat.com"
