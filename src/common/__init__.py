@@ -5,7 +5,7 @@ import requests
 # import redis
 from boto3 import client as boto3_client
 
-from cfg import is_local, redis_client, chat_history_client, API_URL, CHAT_HISTORY_REDIS_URL, MAX_ROOM_HISTORY
+from cfg import is_local, redis_client, chat_history_client, API_URL, CHAT_HISTORY_REDIS_URL, MAX_ROOM_HISTORY, MAX_USER_CONNECTION
 from chat_socket.shim import queue_message
 
 # redis_client = redis.Redis.from_url(REDIS_URL)
@@ -201,10 +201,13 @@ def join_room(connection_id, user, room_id, room_type, event):
             existing_user = None
 
         if existing_user:
-            if connection_id in existing_user['connections']:
+            user_connections = existing_user['connections']
+            if connection_id in user_connections:
                 # return directly if connection already in
                 return room
-            existing_user['connections'].append(connection_id)
+            user_connections.append(connection_id)
+            existing_user['connections'] = user_connections[-MAX_USER_CONNECTION:]
+
         else:
             new_user = build_room_user_from_user_data(user)
             new_user['connections'].append(connection_id)

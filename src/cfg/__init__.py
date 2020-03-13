@@ -16,7 +16,9 @@ REDIS_URL = 'redis://same-page-cache.1brzf1.0001.apse1.cache.amazonaws.com:6379'
 CHAT_HISTORY_REDIS_URL = 'redis://sp-chat-history.1brzf1.0001.apse1.cache.amazonaws.com:6379'
 
 MAX_ROOM_HISTORY = 30
-
+# how many live connection same user can have in a room
+# e.g. user open multiple tabs
+MAX_USER_CONNECTION = 10
 if env.lower() == 'proxy_prod':
     # prod proxy
     CHAT_HISTORY_REDIS_URL = 'redis://13.229.251.12:7617'
