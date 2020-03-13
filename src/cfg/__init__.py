@@ -17,13 +17,15 @@ CHAT_HISTORY_REDIS_URL = 'redis://sp-chat-history.1brzf1.0001.apse1.cache.amazon
 
 MAX_ROOM_HISTORY = 30
 
+if env.lower() == 'proxy_prod':
+    # prod proxy
+    CHAT_HISTORY_REDIS_URL = 'redis://13.229.251.12:7617'
+    REDIS_URL = 'redis://13.229.251.12:7618'
+
 redis_client = redis.Redis.from_url(REDIS_URL)
 chat_history_client = redis.Redis.from_url(CHAT_HISTORY_REDIS_URL)
 
 if is_local:
-    # prod proxy
-    # CHAT_HISTORY_REDIS_URL = 'redis://13.229.251.12:7617'
-    # REDIS_URL = 'redis://13.229.251.12:7618'
 
     # REDIS_URL = CHAT_HISTORY_REDIS_URL = 'redis://0.0.0.0:6379'
 

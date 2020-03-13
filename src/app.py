@@ -1,5 +1,6 @@
 import json
 import uuid
+import copy
 
 import asyncio
 import pathlib
@@ -29,20 +30,22 @@ async def hello(websocket, path):
     connection_id = str(uuid.uuid4())
     print(f'{connection_id} connected')
     local_sockets[connection_id] = websocket
+    mock_event = {
+        'requestContext': {
+            'connectionId': connection_id,
+            'domainName': CHAT_SOCKET_DOMAIN,
+            'stage': 'prod'
+        },
+        'body': ''
+    }
     while True:
         try:
             data_str = await websocket.recv()
             data = json.loads(data_str)
             action = data['action']
+            print(f'{connection_id} {action}')
             # mock how event is passed to aws lambda functions
-            mock_event = {
-                'requestContext': {
-                    'connectionId': connection_id,
-                    'domainName': CHAT_SOCKET_DOMAIN,
-                    'stage': 'prod'
-                },
-                'body': data_str
-            }
+            mock_event['body'] = data_str
             res = handle_event(mock_event, action)
 
             await websocket.send(res)
