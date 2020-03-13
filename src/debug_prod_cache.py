@@ -31,4 +31,4 @@ def get_chat_history_size(room_id):
 
 # print(get_chat_history_size('news'))
 print(get_content_size('news'))
-analyze_room('mtv')
+analyze_room('news')

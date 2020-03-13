@@ -207,7 +207,8 @@ def join_room(connection_id, user, room_id, room_type, event):
                 return room
             user_connections.append(connection_id)
             existing_user['connections'] = user_connections[-MAX_USER_CONNECTION:]
-
+            # TODO: tell the connection client it's removed
+            # so UI would show disconnected
         else:
             new_user = build_room_user_from_user_data(user)
             new_user['connections'].append(connection_id)
