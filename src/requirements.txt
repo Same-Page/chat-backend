@@ -1,0 +1,8 @@
+beautifulsoup4==4.8.2
+boto3==1.10.44
+botocore==1.13.44
+bs4==0.0.1
+certifi==2019.11.28
+redis==3.4.1
+requests==2.22.0
+websockets==8.1
