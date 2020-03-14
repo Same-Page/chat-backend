@@ -2,30 +2,12 @@ import json
 import logging
 
 import requests
-# import redis
 from boto3 import client as boto3_client
 
 from cfg import is_local, redis_client, chat_history_client, API_URL, CHAT_HISTORY_REDIS_URL, MAX_ROOM_HISTORY, MAX_USER_CONNECTION
 from chat_socket.shim import queue_message
 
-# redis_client = redis.Redis.from_url(REDIS_URL)
-# chat_history_client = redis.Redis.from_url(CHAT_HISTORY_REDIS_URL)
 sns_client = boto3_client('sns')
-
-
-# if is_local:
-#     local_cache = {}
-
-#     def get_cache(key):
-#         local_cache.get(key)
-
-#     def put_cache(key, val):
-#         local_cache[key] = val
-
-#     redis_client = MagicMock()
-#     redis_client.get = get_cache
-#     redis_client.set = put_cache
-#     chat_history_client = redis_client
 
 
 def get_connection(connection_id):
@@ -101,6 +83,7 @@ def broadcast_user_left(event, room, user):
 
 
 def delete_connection_from_rooms(event, connection_id, user, rooms):
+    user_has_left = False
     for room_id in rooms:
         room = get_room(room_id)
         if room:
@@ -121,17 +104,19 @@ def delete_connection_from_rooms(event, connection_id, user, rooms):
                             redis_client.delete(room_id)
                             return
                         else:
-                            # broadcast user left
-                            broadcast_user_left(event, room, user)
+                            user_has_left = True
 
                     redis_client.set(room_id, json.dumps(room))
+                    if user_has_left:
+                        # broadcast user left
+                        broadcast_user_left(event, room, user)
 
 
 def send_msg_to_room(endpoint_url, payload, room):
     data = {
         'endpoint_url': endpoint_url,
         'message': payload,
-        'room': room
+        'room_id': room['id']
     }
     if is_local:
         queue_message(json.dumps(data))
