@@ -4,7 +4,7 @@ import logging
 from boto3 import client as boto3_client
 import requests
 
-from common import get_room_messages, get_user, get_room, get_user_from_cache, get_connection, delete_connection_from_rooms, send_msg_to_room, join_room, save_user, save_connection, delete_connection_from_rooms
+from common import get_room_messages, get_user, get_room, get_connection, delete_connection_from_rooms, send_msg_to_room, join_room, save_connection, delete_connection_from_rooms
 from cfg import redis_client
 
 """
@@ -23,10 +23,14 @@ Data in cache
 <user_id>: {
     'connections': ['sdcxzv', '2j3klf']
 }
+^^ this one seems never useful?
+
 <connection_id>: {
     'user': {'id':123, 'name':'David' ...},
     'rooms': ['google.com', 'google.com/?q=avril']
 }
+
+Most important one below
 <room_id>: {
     'id': 'google.com',
     'users':[{'id':123, 'name':'David' ...}],
@@ -72,7 +76,7 @@ def lambda_handler(event, context):
         # save connection - {'user':{}, 'rooms':[]}
         save_connection(connection_id, user, room_ids)
         # save user - {'connections':[]}
-        save_user(connection_id, user['id'])
+        # save_user(connection_id, user['id'])
 
         # TODO: client shouldn't see other user's connections
         res = {

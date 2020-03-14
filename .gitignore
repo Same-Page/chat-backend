@@ -3,4 +3,6 @@
 .vscode/*
 *.pyc
 src/dump.rdb
-src/package/*
+
+function.zip
+packages/*

@@ -7,7 +7,7 @@ import redis
 
 
 from cfg import REDIS_URL, API_URL
-from common import get_user, get_room, get_connection, delete_connection_from_rooms, save_connection, save_user
+from common import get_user, get_room, get_connection, delete_connection_from_rooms, save_connection
 
 
 def lambda_handler(event, context):
@@ -32,7 +32,7 @@ def lambda_handler(event, context):
         # save connection - {'user':{}, 'rooms':[]}
         save_connection(connection_id, user, room_ids)
         # save user - {'connections':[]}
-        save_user(connection_id, user['id'])
+        # save_user(connection_id, user['id'])
 
         # TODO: client shouldn't see other user's connections
         res = {

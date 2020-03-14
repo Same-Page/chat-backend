@@ -5,7 +5,7 @@ from boto3 import client as boto3_client
 import requests
 from cfg import redis_client
 
-from common import get_user, join_room, save_user, get_connection, save_connection, get_room_messages
+from common import get_user, join_room, get_connection, save_connection, get_room_messages
 
 
 """
@@ -63,8 +63,9 @@ def lambda_handler(event, context):
         # save connection - {'user':{}, 'rooms':[]}
         save_connection(connection_id, user,
                         list(set(previous_joined_room_ids+[room['id']])))
+
         # save user - {'connections':[]}
-        save_user(connection_id, user['id'])
+        # save_user(connection_id, user['id'])
 
         # TODO: client shouldn't see other user's connections
         res = {

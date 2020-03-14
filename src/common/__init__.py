@@ -46,12 +46,12 @@ def save_room_messages(room_id, chat_history):
         f'chat-history-{room_id}', json.dumps(chat_history))
 
 
-def get_user_from_cache(user_id):
-    data = redis_client.get(user_id)
-    if data:
-        user = json.loads(data)
-        return user
-    return None
+# def get_user_from_cache(user_id):
+#     data = redis_client.get(user_id)
+#     if data:
+#         user = json.loads(data)
+#         return user
+#     return None
 
 
 def get_user(token):
@@ -113,19 +113,33 @@ def delete_connection_from_rooms(event, connection_id, user, rooms):
 
 
 def send_msg_to_room(endpoint_url, payload, room):
-    data = {
-        'endpoint_url': endpoint_url,
-        'message': payload,
-        'room_id': room['id']
-    }
-    if is_local:
-        queue_message(json.dumps(data))
-    else:
-        sns_client.publish(
-            TargetArn='arn:aws:sns:ap-southeast-1:398625168665:sp-message',
-            Message=json.dumps({'default': json.dumps(data)}),
-            MessageStructure='json'
-        )
+    """
+    Sending message to clients is slow, queue messages for each
+    user in the room (each user can have multiple connections in the room)
+
+    This way one user having too many connections or slow connections won't
+    affect the other users in the room
+
+    Not breaking into each individual connection because when we find dead
+    connection, we can potentially delete the user from the room
+
+    """
+    users = room['users']
+    for user in users:
+        data = {
+            'endpoint_url': endpoint_url,
+            'message': payload,
+            'room_id': room['id'],
+            'user': user
+        }
+        if is_local:
+            queue_message(json.dumps(data))
+        else:
+            sns_client.publish(
+                TargetArn='arn:aws:sns:ap-southeast-1:398625168665:sp-message',
+                Message=json.dumps({'default': json.dumps(data)}),
+                MessageStructure='json'
+            )
 
 
 def broadcast_new_join(event, room, user):
@@ -215,14 +229,15 @@ def join_room(connection_id, user, room_id, room_type, event):
     return room
 
 
-def save_user(connection_id, user_id):
-    user_connection_data = get_user_from_cache(user_id)
-    if user_connection_data:
-        user_connection_data['connections'].append(connection_id)
-        user_connection_data['connections'] = list(
-            set(user_connection_data['connections']))
-    else:
-        user_connection_data = {
-            'connections': [connection_id]
-        }
-    redis_client.set(user_id, json.dumps(user_connection_data))
+# def save_user(connection_id, user_id):
+    # TODO: better naming, this is saving connection to user
+    # user_connection_data = get_user_from_cache(user_id)
+    # if user_connection_data:
+    #     user_connection_data['connections'].append(connection_id)
+    #     user_connection_data['connections'] = list(
+    #         set(user_connection_data['connections']))
+    # else:
+    #     user_connection_data = {
+    #         'connections': [connection_id]
+    #     }
+    # redis_client.set(user_id, json.dumps(user_connection_data))

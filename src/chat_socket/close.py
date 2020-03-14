@@ -4,18 +4,18 @@ import logging
 import boto3
 
 from cfg import redis_client
-from common import get_room, get_user_from_cache, broadcast_user_left, delete_connection_from_rooms
+from common import get_room, broadcast_user_left, delete_connection_from_rooms
 
 
-def _delete_connection_from_user(connection_id, user_id):
-    user = get_user_from_cache(user_id)
-    if user:
-        user['connections'] = [
-            c for c in user['connections'] if c != connection_id]
-        if len(user['connections']) > 0:
-            redis_client.set(user_id, json.dumps(user))
-        else:
-            redis_client.delete(user_id)
+# def _delete_connection_from_user(connection_id, user_id):
+#     user = get_user_from_cache(user_id)
+#     if user:
+#         user['connections'] = [
+#             c for c in user['connections'] if c != connection_id]
+#         if len(user['connections']) > 0:
+#             redis_client.set(user_id, json.dumps(user))
+#         else:
+#             redis_client.delete(user_id)
 
 
 def _delete_connection_from_connections(connection_id):
@@ -33,7 +33,7 @@ def lambda_handler(event, context):
         user = connection['user']
         rooms = connection['rooms']
         delete_connection_from_rooms(event, connection_id, user, rooms)
-        _delete_connection_from_user(connection_id, user['id'])
+        # _delete_connection_from_user(connection_id, user['id'])
 
 
 payload = {
