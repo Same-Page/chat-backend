@@ -112,15 +112,19 @@ def delete_connection_from_rooms(event, connection_id, user, rooms):
                         broadcast_user_left(event, room, user)
 
 
-def send_msg_to_room(endpoint_url, payload, room):
+def send_msg_to_room(endpoint_url, payload, room, exclude_connection=None):
     """
     Sending message to clients is slow, send to SNS for fanout
     first, then process in parallel
+
+    exclude_connection is usually the sender, sender's own message
+    is returned as soon as server receives it, shouldn't send again to sender
     """
     data = {
         'endpoint_url': endpoint_url,
         'message': payload,
-        'room_id': room['id']
+        'room_id': room['id'],
+        'exclude_connection': exclude_connection
     }
     if is_local:
         queue_broadcast(json.dumps(data))

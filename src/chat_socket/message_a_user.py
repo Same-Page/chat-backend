@@ -58,12 +58,16 @@ def lambda_handler(event, context, send_message_to_socket=None):
     user = data['user']
     payload = json.dumps(message).encode('utf-8')
     endpoint_url = data['endpoint_url']
+    exclude_connection = data.get('exclude_connection')
+
     gatewayapi = boto3.client(
         "apigatewaymanagementapi", endpoint_url=endpoint_url)
 
     dead_connections = []
 
     for connection_id in user['connections']:
+        if exclude_connection == connection_id:
+            continue
         try:
             if is_local:
                 # Note: the local shim is not very accurate

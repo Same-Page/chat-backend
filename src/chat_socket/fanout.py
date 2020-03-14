@@ -40,19 +40,11 @@ def get_room(room_id):
 def lambda_handler(event, context, queue_message=None):
     data = json.loads(event['Records'][0]['Sns']['Message'])
     room_id = data['room_id']
-    message = data['message']
-    endpoint_url = data['endpoint_url']
 
     room = get_room(room_id)
-
     users = room['users']
     for user in users:
-        data = {
-            'endpoint_url': endpoint_url,
-            'message': message,
-            'room_id': room_id,
-            'user': user
-        }
+        data['user'] = user
         if is_local:
             queue_message(json.dumps(data))
         else:

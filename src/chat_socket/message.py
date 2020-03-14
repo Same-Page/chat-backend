@@ -3,6 +3,8 @@ import logging
 import uuid
 import time
 
+import copy
+
 import boto3
 from boto3 import client as boto3_client
 
@@ -10,6 +12,7 @@ from common import get_user, get_room, get_room_messages, save_room_messages, se
 
 
 def save_msg(data, room_id):
+    data = copy.deepcopy(data)
     """
     Input
         chat_message = {
@@ -128,6 +131,7 @@ def lambda_handler(event, context):
     Client tell room id,
     broadcast to the room
     """
+    connection_id = event["requestContext"].get("connectionId")
     data = json.loads(event['body'])['data']
     message_id = data['id']
     room_id = data['roomId']
@@ -157,11 +161,13 @@ def lambda_handler(event, context):
         endpoint_url = 'https://' + \
             event["requestContext"]["domainName"] + \
             '/'+event["requestContext"]["stage"]
-        send_msg_to_room(endpoint_url, payload, room)
+        send_msg_to_room(endpoint_url, payload, room,
+                         exclude_connection=connection_id)
         save_msg(chat_message, room_id)
+
         return {
             'statusCode': 200,
-            'body': json.dumps('msg received!')
+            'body': json.dumps(payload)
         }
     return {
         'statusCode': 400,
