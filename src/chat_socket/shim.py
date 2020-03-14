@@ -2,12 +2,13 @@ import json
 import time
 import asyncio
 
-from .message_a_user import lambda_handler
+from .message_a_user import lambda_handler as message_a_user
+from .fanout import lambda_handler as fanout
 from .local_sockets import local_sockets
 
 
-def queue_message(message):
-    # simulate async on server
+def queue_broadcast(message):
+    # simulate delay on server
     time.sleep(0.1)
     mock_event = {
         'Records': [{
@@ -16,7 +17,20 @@ def queue_message(message):
             }
         }]
     }
-    lambda_handler(mock_event, None,
+    fanout(mock_event, None, queue_message)
+
+
+def queue_message(message):
+    # simulate delay on server
+    time.sleep(0.1)
+    mock_event = {
+        'Records': [{
+            'Sns': {
+                'Message': message
+            }
+        }]
+    }
+    message_a_user(mock_event, None,
                    send_message_to_socket=send_message_to_socket)
 
 

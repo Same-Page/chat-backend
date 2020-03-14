@@ -5,7 +5,7 @@ import requests
 from boto3 import client as boto3_client
 
 from cfg import is_local, redis_client, chat_history_client, API_URL, CHAT_HISTORY_REDIS_URL, MAX_ROOM_HISTORY, MAX_USER_CONNECTION
-from chat_socket.shim import queue_message
+from chat_socket.shim import queue_broadcast
 
 sns_client = boto3_client('sns')
 
@@ -114,32 +114,22 @@ def delete_connection_from_rooms(event, connection_id, user, rooms):
 
 def send_msg_to_room(endpoint_url, payload, room):
     """
-    Sending message to clients is slow, queue messages for each
-    user in the room (each user can have multiple connections in the room)
-
-    This way one user having too many connections or slow connections won't
-    affect the other users in the room
-
-    Not breaking into each individual connection because when we find dead
-    connection, we can potentially delete the user from the room
-
+    Sending message to clients is slow, send to SNS for fanout
+    first, then process in parallel
     """
-    users = room['users']
-    for user in users:
-        data = {
-            'endpoint_url': endpoint_url,
-            'message': payload,
-            'room_id': room['id'],
-            'user': user
-        }
-        if is_local:
-            queue_message(json.dumps(data))
-        else:
-            sns_client.publish(
-                TargetArn='arn:aws:sns:ap-southeast-1:398625168665:sp-message',
-                Message=json.dumps({'default': json.dumps(data)}),
-                MessageStructure='json'
-            )
+    data = {
+        'endpoint_url': endpoint_url,
+        'message': payload,
+        'room_id': room['id']
+    }
+    if is_local:
+        queue_broadcast(json.dumps(data))
+    else:
+        sns_client.publish(
+            TargetArn='arn:aws:sns:ap-southeast-1:398625168665:sp-broadcast-to-room',
+            Message=json.dumps({'default': json.dumps(data)}),
+            MessageStructure='json'
+        )
 
 
 def broadcast_new_join(event, room, user):
