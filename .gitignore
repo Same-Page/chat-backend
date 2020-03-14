@@ -3,3 +3,4 @@
 .vscode/*
 *.pyc
 src/dump.rdb
+src/package/*
