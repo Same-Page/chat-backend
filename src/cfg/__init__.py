@@ -30,6 +30,7 @@ chat_history_client = redis.Redis.from_url(CHAT_HISTORY_REDIS_URL)
 if is_local:
 
     # REDIS_URL = CHAT_HISTORY_REDIS_URL = 'redis://0.0.0.0:6379'
+    API_URL = "http://localhost:8080"
 
     local_cache = {}
 
