@@ -138,7 +138,7 @@ def lambda_handler(event, context):
     news = get_news()
     if len(news) > 0:
         news = news[0]
-        room_id = 'news'
+        room_id = '45'
         room_type = 'room'
 
         chat_message = {
