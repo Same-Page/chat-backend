@@ -169,7 +169,7 @@ def lambda_handler(event, context):
                 "data": chat_message
             }
             send_msg_to_room(
-                'https://chat-v6.yiyechat.com/prod', payload, room)
+                'https://chat-v6.yiyechat.com/prod', payload, room['id'])
 
 
 if __name__ == "__main__":

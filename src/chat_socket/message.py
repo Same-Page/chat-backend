@@ -161,7 +161,7 @@ def lambda_handler(event, context):
         endpoint_url = 'https://' + \
             event["requestContext"]["domainName"] + \
             '/'+event["requestContext"]["stage"]
-        send_msg_to_room(endpoint_url, payload, room,
+        send_msg_to_room(endpoint_url, payload, room_id,
                          exclude_connection=connection_id)
         save_msg(chat_message, room_id)
 

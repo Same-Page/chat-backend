@@ -7,7 +7,7 @@ import pathlib
 import ssl
 import websockets
 
-from chat_socket import set_rooms, message, join_single_room, leave_single_room, close
+from chat_socket import set_rooms, message, join_single_room, leave_single_room, close, delete_message
 from chat_socket.local_sockets import local_sockets
 from cfg import CHAT_SOCKET_DOMAIN
 
@@ -22,6 +22,9 @@ def handle_event(mock_event, action):
         res = join_single_room.lambda_handler(mock_event, None)['body']
     if action == 'leave_single':
         res = leave_single_room.lambda_handler(mock_event, None)['body']
+    if action == 'delete_message':
+        print('del')
+        res = delete_message.lambda_handler(mock_event, None)['body']
 
     return res
 
